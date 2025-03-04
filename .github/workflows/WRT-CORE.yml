@@ -226,7 +226,7 @@ jobs:
           tag_name: ${{env.WRT_CONFIG}}_${{env.WRT_VER}}_${{env.WRT_DATE}}
           files: ./wrt/upload/*.*
           body: |
-           fix miniupnpd
+           360v6
 
             内核版本：${{env.WRT_KVER}}
 
