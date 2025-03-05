@@ -7,10 +7,10 @@ CONFIG_PACKAGE_luci-app-autoreboot=y
 CONFIG_PACKAGE_luci-app-zerotier=y
 CONFIG_PACKAGE_luci-app-samba4=y
 #360V6精简
-CONFIG_PACKAGE_luci-app-sqm=n
-CONFIG_PACKAGE_luci-app-frpc=n
-CONFIG_PACKAGE_luci-app-qbittorrent=n
-CONFIG_PACKAGE_luci-app-fileassistant=n
+CONFIG_PACKAGE_luci-app-sqm=y
+CONFIG_PACKAGE_luci-app-frpc=y
+CONFIG_PACKAGE_luci-app-qbittorrent=y
+CONFIG_PACKAGE_luci-app-fileassistant=y
 #删除插件
 CONFIG_PACKAGE_luci-app-ddns=n
 CONFIG_PACKAGE_luci-app-vlmcsd=n
