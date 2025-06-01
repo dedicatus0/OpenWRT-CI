@@ -247,6 +247,9 @@ jobs:
 
 
       - name: 设置 Rust 配置
-  run: |
-    echo '[build]' >> ~/.cargo/config
-    echo 'llvm.download-ci-llvm = "if-unchanged"' >> ~/.cargo/config
+        run: |
+        echo '[build]' >> ~/.cargo/config
+        echo 'llvm.download-ci-llvm = "if-unchanged"' >> ~/.cargo/config
+
+        
+    
