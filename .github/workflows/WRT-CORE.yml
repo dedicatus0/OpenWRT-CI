@@ -178,6 +178,18 @@ jobs:
           cd ./wrt/
 
           make download -j$(nproc)
+      
+      - name: Patch llvm.download-ci-llvm 参数
+        run: |
+          if [ -f feeds/packages/lang/rust/Makefile ]; then
+            sed -i 's/llvm.download-ci-llvm=true/llvm.download-ci-llvm=if-unchanged/g' feeds/packages/lang/rust/Makefile
+          fi
+          if [ -f package/feeds/packages/rust/Makefile ]; then
+            sed -i 's/llvm.download-ci-llvm=true/llvm.download-ci-llvm=if-unchanged/g' package/feeds/packages/rust/Makefile
+          fi
+          if [ -f package/lang/rust/Makefile ]; then
+            sed -i 's/llvm.download-ci-llvm=true/llvm.download-ci-llvm=if-unchanged/g' package/lang/rust/Makefile
+          fi
 
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
