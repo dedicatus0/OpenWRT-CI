@@ -83,14 +83,6 @@ jobs:
           sudo chown $USER:$USER /mnt/build_wrt
           sudo ln -s /mnt/build_wrt $GITHUB_WORKSPACE/wrt
 
-      # === Rust/LLVM修正 begin ===
-      - name: Fix Rust llvm.download-ci-llvm CI issue
-        run: |
-          sudo apt-get install -y llvm clang
-          # 自动移除所有 config.toml 或 feeds/packages/lang/rust 目录下的 download-ci-llvm 设置
-          find ./wrt/feeds/packages/lang/rust -type f -name "config.toml" -exec sed -i '/download-ci-llvm/d' {} +
-      # === Rust/LLVM修正 end ===
-
       - name: Initialization Values
         run: |
           echo "WRT_DATE=$(TZ=UTC-8 date +"%y.%m.%d-%H.%M.%S")" >> $GITHUB_ENV
@@ -186,6 +178,13 @@ jobs:
           cd ./wrt/
 
           make download -j$(nproc)
+
+      # === Rust/LLVM修正 begin ===
+      - name: Fix Rust llvm.download-ci-llvm CI issue
+        run: |
+          sudo apt-get install -y llvm clang
+          find ./wrt/feeds/packages/lang/rust -type f -name "config.toml" -exec sed -i '/download-ci-llvm/d' {} +
+      # === Rust/LLVM修正 end ===
 
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
