@@ -1,5 +1,4 @@
-# 云编译公用核心修正版，修复 Rust llvm.download-ci-llvm 参数在 CI 下的报错问题
-
+#云编译公用核心
 name: WRT-CORE
 
 on:
@@ -179,37 +178,6 @@ jobs:
           cd ./wrt/
 
           make download -j$(nproc)
-      
-      # 关键修复点：确保 Patch 步骤在 download 之后 make 之前
-      - name: Patch llvm.download-ci-llvm 参数
-        run: |
-          cd ./wrt/
-          # Patch Makefile 里的参数
-          for mf in feeds/packages/lang/rust/Makefile package/feeds/packages/rust/Makefile package/lang/rust/Makefile; do
-            if [ -f "$mf" ]; then
-              sed -i 's/llvm.download-ci-llvm[[:space:]]*=[[:space:]]*true/llvm.download-ci-llvm=if-unchanged/g' "$mf"
-              sed -i '/llvm.download-ci-llvm[[:space:]]*=[[:space:]]*true/d' "$mf"
-            fi
-          done
-          # Patch config.toml 文件
-          for cf in feeds/packages/lang/rust/config.toml package/feeds/packages/rust/config.toml package/lang/rust/config.toml; do
-            if [ -f "$cf" ]; then
-              sed -i 's/download-ci-llvm[[:space:]]*=.*/download-ci-llvm = "if-unchanged"/g' "$cf"
-            fi
-          done
-          # 强制覆盖一份 config.toml（部分包可能只在编译时生成：此举冗余但保险）
-          for dir in feeds/packages/lang/rust package/feeds/packages/rust package/lang/rust; do
-            if [ -d "$dir" ]; then
-              echo -e "[llvm]\ndownload-ci-llvm = \"if-unchanged\"" > "$dir/config.toml"
-            fi
-          done
-
-      - name: 检查 Rust 配置（调试用，可移除）
-        run: |
-          cd ./wrt/
-          grep -r "download-ci-llvm" feeds/packages/lang/rust/ || true
-          grep -r "download-ci-llvm" package/feeds/packages/rust/ || true
-          grep -r "download-ci-llvm" package/lang/rust/ || true
 
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
@@ -260,7 +228,8 @@ jobs:
           tag_name: ${{env.WRT_CONFIG}}-${{env.WRT_INFO}}-${{env.WRT_DATE}}
           files: ./wrt/upload/*.*
           body: |
-           
+            
+
             源码：${{env.WRT_REPO}}
             分支：${{env.WRT_BRANCH}}
             提交：${{env.WRT_HASH}}
