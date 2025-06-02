@@ -95,9 +95,7 @@ jobs:
       - name: Clone Code
         run: |
           git clone --depth=1 --single-branch --branch $WRT_BRANCH $WRT_REPO ./wrt/
-
           cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
-
           # GitHub Action 移除国内下载源
           PROJECT_MIRRORS_FILE="./scripts/projectsmirrors.json"
           if [ -f "$PROJECT_MIRRORS_FILE" ]; then
@@ -127,9 +125,7 @@ jobs:
             find "./wrt/staging_dir" -type d -name "stamp" -not -path "*target*" | while read -r DIR; do
               find "$DIR" -type f -exec touch {} +
             done
-
             mkdir -p ./wrt/tmp && echo "1" > ./wrt/tmp/.build
-
             echo "toolchain skiped done!"
           else
             echo "caches missed!"
@@ -140,64 +136,52 @@ jobs:
             for CACHE_KEY in $CACHE_LIST; do
               gh cache delete $CACHE_KEY
             done
-
             echo "caches cleanup done!"
           fi
 
       - name: Update Feeds
         run: |
           cd ./wrt/
-
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
       - name: Custom Packages
         run: |
           cd ./wrt/package/
-
           $GITHUB_WORKSPACE/Scripts/Packages.sh
           $GITHUB_WORKSPACE/Scripts/Handles.sh
 
       - name: Custom Settings
         run: |
           cd ./wrt/
-
           if [[ "${WRT_CONFIG,,}" == *"test"* ]]; then
             cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt >> .config
           else
             cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt $GITHUB_WORKSPACE/Config/GENERAL.txt >> .config
           fi
-
           $GITHUB_WORKSPACE/Scripts/Settings.sh
-
           make defconfig -j$(nproc) && make clean -j$(nproc)
 
       - name: Download Packages
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
-
           make download -j$(nproc)
 
-      # === Rust/LLVM修正 begin ===
-      - name: Remove download-ci-llvm from Rust config (before build)
+      # === Rust/LLVM修补 - 放到Download Packages之后 ===
+      - name: Patch llvm.download-ci-llvm in Rust Makefile
         run: |
-          sudo apt-get install -y llvm clang
-          find ./wrt/feeds/packages/lang/rust -type f -name "config.toml" -exec sed -i '/download-ci-llvm/d' {} +
-      # === Rust/LLVM修正 end ===
+          sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' ./wrt/feeds/packages/lang/rust/Makefile
 
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
-          # 编译前再次修正，防止中途被覆盖
-          find ./feeds/packages/lang/rust -type f -name "config.toml" -exec sed -i '/download-ci-llvm/d' {} +
           make -j$(nproc) || make -j$(nproc) V=s
 
       - name: Machine Information
         run: |
           cd ./wrt/
-
           echo "======================="
           lscpu | grep -E "name|Core|Thread"
           echo "======================="
@@ -209,24 +193,18 @@ jobs:
       - name: Package Firmware
         run: |
           cd ./wrt/ && mkdir ./upload/
-
           cp -f ./.config ./upload/Config-"$WRT_CONFIG"-"$WRT_INFO"-"$WRT_DATE".txt
-
           if [[ $WRT_TEST != 'true' ]]; then
             echo "WRT_KVER=$(find ./bin/targets/ -type f -name "*.manifest" -exec grep -oP '^kernel - \K[\d\.]+' {} \;)" >> $GITHUB_ENV
             echo "WRT_LIST=$(find ./bin/targets/ -type f -name "*.manifest" -exec grep -oP '^luci-(app|theme)[^ ]*' {} \; | tr '\n' ' ')" >> $GITHUB_ENV
-
             find ./bin/targets/ -iregex ".*\(buildinfo\|json\|sha256sums\|packages\)$" -exec rm -rf {} +
-
             for FILE in $(find ./bin/targets/ -type f -iname "*$WRT_TARGET*") ; do
               EXT=$(basename $FILE | cut -d '.' -f 2-)
               NAME=$(basename $FILE | cut -d '.' -f 1 | grep -io "\($WRT_TARGET\).*")
               NEW_FILE="$WRT_INFO"-"$NAME"-"$WRT_DATE"."$EXT"
               mv -f $FILE ./upload/$NEW_FILE
             done
-
             find ./bin/targets/ -type f -exec mv -f {} ./upload/ \;
-
             make clean -j$(nproc)
           fi
 
@@ -236,7 +214,6 @@ jobs:
           tag_name: ${{env.WRT_CONFIG}}-${{env.WRT_INFO}}-${{env.WRT_DATE}}
           files: ./wrt/upload/*.*
           body: |
-            
             源码：${{env.WRT_REPO}}
             分支：${{env.WRT_BRANCH}}
             提交：${{env.WRT_HASH}}
