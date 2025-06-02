@@ -180,7 +180,7 @@ jobs:
           make download -j$(nproc)
 
       # === Rust/LLVM修正 begin ===
-      - name: Fix Rust llvm.download-ci-llvm CI issue
+      - name: Remove download-ci-llvm from Rust config (before build)
         run: |
           sudo apt-get install -y llvm clang
           find ./wrt/feeds/packages/lang/rust -type f -name "config.toml" -exec sed -i '/download-ci-llvm/d' {} +
@@ -190,7 +190,8 @@ jobs:
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
-
+          # 编译前再次修正，防止中途被覆盖
+          find ./feeds/packages/lang/rust -type f -name "config.toml" -exec sed -i '/download-ci-llvm/d' {} +
           make -j$(nproc) || make -j$(nproc) V=s
 
       - name: Machine Information
