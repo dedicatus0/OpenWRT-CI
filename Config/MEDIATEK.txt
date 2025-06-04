@@ -1,13 +1,7 @@
 #设备平台
 CONFIG_TARGET_ramips=y
 CONFIG_TARGET_ramips_mt7621=y
+CONFIG_TARGET_MULTI_PROFILE=y
 #设备列表
-CONFIG_TARGET_ramips_mt7621_DEVICE_xiaomi_redmi-router-ac2100-stock=y
-CONFIG_TARGET_ramips_mt7621_DEVICE_xiaomi_redmi-router-ac2100-ubootmod=y
-CONFIG_TARGET_ramips_mt7621_DEVICE_xiaomi_mi-router-ac2100-stock=y
-CONFIG_TARGET_ramips_mt7621_DEVICE_xiaomi_mi-router-ac2100-ubootmod=y
-CONFIG_TARGET_ARCH_PACKAGES="mipsel_24kc"
-CONFIG_DEFAULT_TARGET_OPTIMIZATION="-Os -pipe -mno-branch-likely -mips32r2 -mtune=24kc"
-CONFIG_CPU_TYPE="24kc"
-CONFIG_mipsel=y
-CONFIG_ARCH="mipsel"
+CONFIG_TARGET_DEVICE_ramips_mt7621_DEVICE_xiaomi_redmi-router-ac2100=y
+CONFIG_TARGET_DEVICE_ramips_mt7621_DEVICE_xiaomi_mi-router-ac2100=y
