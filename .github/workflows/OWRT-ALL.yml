@@ -32,7 +32,7 @@ jobs:
       fail-fast: false
       #max-parallel: 3
       matrix:
-        CONFIG: [ROCKCHIP]
+        CONFIG: [MEDIATEK]
         SOURCE: [immortalwrt/immortalwrt]
         BRANCH: [openwrt-21.02]
 
