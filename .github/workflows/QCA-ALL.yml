@@ -11,7 +11,7 @@ on:
     workflows: ["Auto-Clean"]
     types:
       - completed
-  #手动编译
+ #手动编译
   workflow_dispatch:
     inputs:
       PACKAGE:
@@ -37,7 +37,7 @@ jobs:
       matrix:
         CONFIG: [360v6, RE-SS-01]
         SOURCE: [dedicatus0/immortalwrt]
-        BRANCH: [main]
+        BRANCH: [owrt]
 
     #调用公用编译核心WRT-CORE.yml
     uses: ./.github/workflows/WRT-CORE.yml
@@ -45,11 +45,11 @@ jobs:
       #编译配置
       WRT_CONFIG: ${{matrix.CONFIG}}
       #默认主题
-      WRT_THEME: aurora
+      WRT_THEME: vantage
       #默认主机名
-      WRT_NAME: OpenWRT
+      WRT_NAME: OWRT
       #默认WIFI名称
-      WRT_SSID: OpenWRT
+      WRT_SSID: OWRT
       #默认WIFI密码
       WRT_WORD: 12345678
       #默认地址
